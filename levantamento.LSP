@@ -1,0 +1,11 @@
+
+(defun c:>Órdem-arquivo-pontos(/ opções aux)
+  (setq opções órdem órdem (list))
+  (while (> (length opções) 1)
+    (setq aux (<opção-da-lista opções)
+	  órdem (cons (car aux) órdem)
+	  opções (cadr aux)
+	  )
+    )
+  (setq órdem (reverse (cons (car opções) órdem)))
+  )
