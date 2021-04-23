@@ -1,1 +1,1 @@
-lorem
+Aqui se inicia a construção de rotinas auxiliares
