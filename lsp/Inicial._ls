@@ -1,0 +1,1 @@
+(defun tô-vivo() (alert "Tô aqui!!"))

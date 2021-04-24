@@ -1,4 +1,6 @@
 
+(load "C:/2021/projeto/lsp/inicial.lsp")
+
 ;;;;;;	Registro de classes do usuário:
 ;;;(regapp "ponto")
 ;;;(regapp "temp")
@@ -27,22 +29,7 @@
 ;;;  (alert "Problema com o cfg")
 ;;;  )
 
-(if (setq pa (open "c:/2021/projeto/lsp/#1.cfg" "r"))
-  (progn
-    (alert "ok!!")
-    (setq pa (close pa))
-    )
-  (progn
-    (alert "Arquivo de configuração não encontrado!!\ntente manualmente")
-    (if (setq na (getfiled "Obter configuração" "c:/" "cfg" 0))
-      (if (setq pa (open na "r"))
-	(progn
-	  (alert "cfg encontrado manualmente")
-	  (setq pa (close pa))
-	  )
-	(alert "Problema desconhecido")
-	)
-      (alert "Cancelou, danadinho!!\nesquenta não. Vamos fazer um cfg...\n\tna próxima etapa...")
-      )
-    )
-  )
+;;;....................................................................................................................................................
+
+;;;	23-4-2021 17:00
+(print (cfg))

@@ -23,3 +23,12 @@
     )
   (atof arg)
   );	Retorna o float representado em arg.
+
+;;;	arg <- [caractere separador, linha de dados].
+(defun linha->dados(arg / sep dig tx res)
+  (setq sep (car arg) arg (cadr arg) tx "")
+  (while (/= (setq dig (substr arg 1 1) arg (substr arg 2) dig dig) "")
+    (if (= dig sep) (setq res (cons tx res) tx "") (setq tx (strcat tx dig)))
+    )
+  (cons tx res)
+  );	Retorna lista revertida dos dados representados. Elementos da lista são do tipo texto.
