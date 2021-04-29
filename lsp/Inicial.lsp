@@ -8,23 +8,47 @@
   (cons tx res)
   );	Retorna lista revertida dos dados representados. Elementos da lista são do tipo texto.
 
+;;;	arg <- [<separador de dados> <ponteiro de arquivo>]
 (defun arquivo->lista(arg / ln res)(while (setq ln (read-line (cadr arg))) (setq res (cons (linha->dados (list (car arg) ln)) res))) res)
+;;;	retorna [<registro 1> ... <registro n>]					!!!	órdem da saida a verificar	!!!
+;;;	registros na forma ["campo 1" ... "campo m"]				!!!	órdem da saida a verificar	!!!
 
-(defun cfg(/ na pa ln res)
-  (if (setq pa (open "c:/2021/projeto/lsp/#0.cfg" "r"))
-    (setq res (arquivo->lista (list "\t" pa)))
-    (progn
-      (alert "Arquivo de configuração não encontrado!!\ntente manualmente")
-      (if (setq na (getfiled "Obter configuração" "c:/" "cfg" 0))
-	(if (setq pa (open na "r"))
-	  (setq res (arquivo->lista (list "\t" pa)))
-	  (alert "Problema desconhecido")
+;;;	arg <- lista de textos na forma [mensagem opção-0 ... opção-n]
+(defun menu(arg / msg op opp i)
+  (setq msg (car arg) arg (cdr arg))
+  (while (nth (setq i (if i (1+ i) 0)) arg)
+    (setq op (if (= i 0) (nth i arg) (strcat op " " (nth i arg)))
+	  opp (if (= i 0) (strcat "[" (nth i arg)) (strcat opp ", " (nth i arg)))
 	  )
-	(alert "Cancelou, danadinho!!\nesquenta não. Vamos fazer um cfg...\n\tna próxima etapa...")
-	)
+    )
+  (setq opp (strcat opp "]"))
+  (initget op)
+  (getkword (strcat msg " " opp))
+  );	retorna a opção escolhida
+
+;;;	arg <- lista de textos para getfiled na forma [título# pasta extensão]
+(defun ler-ids-arquivos(arg / i na res)
+  (while (setq i (if i (1+ i) 1) na (getfiled (strcat (car arg) (itoa i)) (cadr arg) (caddr arg) 0)) (setq res (cons na res)))
+  res
+  );	retorna lista de nomes de arquivos
+
+(defun inicializa()
+  (if (= (menu (list "Escolha a forma de configurar trabalho atual" "Abrir" "Criar")) "Abrir")
+    (alert "Escolheu abrir\num arquivo existente")
+    (progn
+      (setq rotinas (ler-ids-arquivos (list "Arquivo lsp #" "c:/2021/" "lsp")))
       )
     )
-  (if pa (close pa))
-  (gc)
-  (mapcar 'reverse res)
+  (princ)
   )
+
+;;;(defun _cfg(arg / pa ln res)
+;;;  (if (null arg)
+;;;    (if (null (setq arg (getfiled "Obter configuração" "c:/" "cfg" 0)))
+;;;      (alert "Arquivo de configuração necessário!!\nVamos criar...");		Aqui se cria arquivo de configuração
+;;;      )
+;;;    )
+;;;  (if arg (setq res (arquivo->lista (list "\t" (open arg "r")))))
+;;;  (gc)
+;;;  (mapcar 'reverse res)
+;;;  )

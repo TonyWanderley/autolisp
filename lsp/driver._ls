@@ -1,48 +1,27 @@
+;;;---------------------------------------------------------------------------------------------------------------------;
+;;;	Este driver é um projeto piloto para a otimização da interface, e deve usar como instância os procedimentos	;
+;;;	pertinentes ao lançamento de pontos a partir de um arquivo de coordenadas típico de levantamentos topográficos	;
+;;;---------------------------------------------------------------------------------------------------------------------;
 
-;;;;;;	Registro de classes do usuário:
-;;;(regapp "ponto")
-;;;(regapp "temp")
-;;;(regapp "cv-niv")
-
-;;;;;;	Variáveis globais:
-;;;(setq pastas (list "C:/2021/projeto/" "Trabalho/" "lsp/")
-;;;      lisp (list "uso-geral.lsp" "levantamento.lsp")
-;;;      classes (list "ponto" "temp" "cv-niv")
-;;;      órdem (list "Nome" "Abcissa" "Ordenada" "Cota" "Detalhe")
-;;;      )
+;;;;			Inicialização - descrição:
+;;;		Ao carrergar, oferece-se duas opções:
+;;;	1 - Carregar configuração existente;
+;;;	2 - Criar novo arquivo de configuração.
 ;;;
-;;;(while (nth (setq i (if i (1+ i) 0)) lisp) (load (strcat (car pastas) (last pastas) (nth i lisp))))
-;;;(setq i nil)
+;;;		O arquivo de configuração deve ter, no mínimo:
+;;;	1 - Arquivos de rotinas lisp utilizadas;					-	rotinas
+;;;	2 - Apids;									-	classes
+;;;	3 - Pasta de salvamento, onde se cria um arquivo de registro de atividades.	-	dt
 
-(alert "Este é o driver")
+(load "C:/2021/projeto/lsp/inicial.lsp")
 
-;;;(if (setq na (getfiled "Obter configuração" "" "cfg" 0))
-;;;  (if (setq pa (open na "r"))
-;;;    (progn
-;;;      (alert "Abriu o cfg")
-;;;      (setq pa (close pa))
-;;;      )
-;;;    (alert "Problema com o cfg")
-;;;    )
-;;;  (alert "Problema com o cfg")
-;;;  )
-
-(if (setq pa (open "c:/2021/projeto/lsp/#1.cfg" "r"))
-  (progn
-    (alert "ok!!")
-    (setq pa (close pa))
+(defun ler-lisps(/ na res)
+  (while (setq i (if i (1+ i) 1) na (getfiled (strcat "Arquivo lsp #" (itoa i)) "c:/2021/" "lsp" 0))
+    (setq res (cons na res))
     )
-  (progn
-    (alert "Arquivo de configuração não encontrado!!\ntente manualmente")
-    (if (setq na (getfiled "Obter configuração" "c:/" "cfg" 0))
-      (if (setq pa (open na "r"))
-	(progn
-	  (alert "cfg encontrado manualmente")
-	  (setq pa (close pa))
-	  )
-	(alert "Problema desconhecido")
-	)
-      (alert "Cancelou, danadinho!!\nesquenta não. Vamos fazer um cfg...\n\tna próxima etapa...")
-      )
-    )
+  res
   )
+
+(inicializa)
+
+;;;(print (setq lcfg(_cfg nil)))		;	Aqui, pode-se colocar o caminho completo do arquivo de configuração

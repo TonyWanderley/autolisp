@@ -1,35 +1,26 @@
+;;;---------------------------------------------------------------------------------------------------------------------;
+;;;	Este driver é um projeto piloto para a otimização da interface, e deve usar como instância os procedimentos	;
+;;;	pertinentes ao lançamento de pontos a partir de um arquivo de coordenadas típico de levantamentos topográficos	;
+;;;---------------------------------------------------------------------------------------------------------------------;
+
+;;;;			Inicialização - descrição:
+;;;		Ao carrergar, oferece-se duas opções:
+;;;	1 - Carregar configuração existente;
+;;;	2 - Criar novo arquivo de configuração.
+;;;
+;;;		O arquivo de configuração deve ter, no mínimo:
+;;;	1 - Arquivos de rotinas lisp utilizadas;					-	rotinas
+;;;	2 - Apids;									-	classes
+;;;		* Os apids são pertinentes a cada grupo de rotinas, portanto devem
+;;;		ser acrescentados
+;;;		à variavel global classes no ato de carregamento destes.
+;;;	3 - Pasta de salvamento, onde se cria um arquivo de registro de atividades.	-	dir-trabalho
+;;;		** No caso particular da instância piloto, lançamento de pontos,
+;;;		temos a órdem de entrada dos cinco campos de registro de cada
+;;;		ponto.
 
 (load "C:/2021/projeto/lsp/inicial.lsp")
 
-;;;;;;	Registro de classes do usuário:
-;;;(regapp "ponto")
-;;;(regapp "temp")
-;;;(regapp "cv-niv")
+(inicializa)
 
-;;;;;;	Variáveis globais:
-;;;(setq pastas (list "C:/2021/projeto/" "Trabalho/" "lsp/")
-;;;      lisp (list "uso-geral.lsp" "levantamento.lsp")
-;;;      classes (list "ponto" "temp" "cv-niv")
-;;;      órdem (list "Nome" "Abcissa" "Ordenada" "Cota" "Detalhe")
-;;;      )
-;;;
-;;;(while (nth (setq i (if i (1+ i) 0)) lisp) (load (strcat (car pastas) (last pastas) (nth i lisp))))
-;;;(setq i nil)
-
-(alert "Este é o driver")
-
-;;;(if (setq na (getfiled "Obter configuração" "" "cfg" 0))
-;;;  (if (setq pa (open na "r"))
-;;;    (progn
-;;;      (alert "Abriu o cfg")
-;;;      (setq pa (close pa))
-;;;      )
-;;;    (alert "Problema com o cfg")
-;;;    )
-;;;  (alert "Problema com o cfg")
-;;;  )
-
-;;;....................................................................................................................................................
-
-;;;	23-4-2021 17:00
-(print (cfg))
+;;;(print (setq lcfg(_cfg nil)))		;	Aqui, pode-se colocar o caminho completo do arquivo de configuração
