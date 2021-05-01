@@ -32,11 +32,15 @@
   res
   );	retorna lista de nomes de arquivos
 
-(defun inicializa()
+(defun inicializa(/ i)
   (if (= (menu (list "Escolha a forma de configurar trabalho atual" "Abrir" "Criar")) "Abrir")
     (alert "Escolheu abrir\num arquivo existente")
     (progn
-      (setq rotinas (ler-ids-arquivos (list "Arquivo lsp #" "c:/2021/" "lsp")))
+      (setq rotinas (ler-ids-arquivos (list "Arquivo lsp #" "c:/2021/" "lsp"))
+	    funções nil
+	    ler-cfg? nil
+	    )
+      (while (nth (setq i (if i (1+ i) 0)) rotinas) (load (nth i rotinas)))
       )
     )
   (princ)

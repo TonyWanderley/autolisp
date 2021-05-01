@@ -11,16 +11,15 @@
 ;;;		O arquivo de configuração deve ter, no mínimo:
 ;;;	1 - Arquivos de rotinas lisp utilizadas;					-	rotinas
 ;;;	2 - Apids;									-	classes
-;;;	3 - Pasta de salvamento, onde se cria um arquivo de registro de atividades.	-	dt
+;;;		* Os apids são pertinentes a cada grupo de rotinas, portanto devem
+;;;		ser acrescentados
+;;;		à variavel global classes no ato de carregamento destes.
+;;;	3 - Pasta de salvamento, onde se cria um arquivo de registro de atividades.	-	dir-trabalho
+;;;		** No caso particular da instância piloto, lançamento de pontos,
+;;;		temos a órdem de entrada dos cinco campos de registro de cada
+;;;		ponto.
 
 (load "C:/2021/projeto/lsp/inicial.lsp")
-
-(defun ler-lisps(/ na res)
-  (while (setq i (if i (1+ i) 1) na (getfiled (strcat "Arquivo lsp #" (itoa i)) "c:/2021/" "lsp" 0))
-    (setq res (cons na res))
-    )
-  res
-  )
 
 (inicializa)
 

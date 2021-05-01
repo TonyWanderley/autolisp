@@ -19,6 +19,13 @@
 ;;;		temos a órdem de entrada dos cinco campos de registro de cada
 ;;;		ponto.
 
+;;;	Variáveis globais:
+;;;	classes
+;;;	funções
+;;;	ler-cfg?
+;;;	órdem-arq-pontos
+;;;	rotinas
+
 (load "C:/2021/projeto/lsp/inicial.lsp")
 
 (inicializa)

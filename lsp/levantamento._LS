@@ -22,12 +22,3 @@
     )
   (reverse (cons (car campos) res))
   );	retorna a órdem dos campos do arquivo-fonte dos pontos
-
-(setq funções (cons "ler-pontos" funções)
-      classes (cons "ponto" classes)
-      )
-
-(if ler-cfg?
-  (alert "Método de leitura de cfg\n..Construir procedimentos..")
-  (setq órdem-arq-pontos (define-órdem))
-  )

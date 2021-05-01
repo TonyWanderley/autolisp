@@ -26,11 +26,18 @@
   (getkword (strcat msg " " opp))
   );	retorna a opção escolhida
 
+;;;	arg <- lista de textos para getfiled na forma [título# pasta extensão]
+(defun ler-ids-arquivos(arg / i na res)
+  (while (setq i (if i (1+ i) 1) na (getfiled (strcat (car arg) (itoa i)) (cadr arg) (caddr arg) 0)) (setq res (cons na res)))
+  res
+  );	retorna lista de nomes de arquivos
+
 (defun inicializa()
   (if (= (menu (list "Escolha a forma de configurar trabalho atual" "Abrir" "Criar")) "Abrir")
     (alert "Escolheu abrir\num arquivo existente")
-;;;    (alert "Escolheu criar\num arquivo de configuração")
-    (setq rotinas (ler-lisps))
+    (progn
+      (setq rotinas (ler-ids-arquivos (list "Arquivo lsp #" "c:/2021/" "lsp")))
+      )
     )
   (princ)
   )
