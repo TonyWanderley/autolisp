@@ -1,0 +1,44 @@
+MPLINK 4.49, Linker
+Linker Map File - Created Mon May 03 12:16:46 2021
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000002
+                   .cinit    romdata   0x000001    program   0x000004
+                     prog       code   0x000003    program   0x000002
+                   .org_1       code   0x000004    program   0x000032
+   .config_2007_ALARMEO.O       code   0x002007    program   0x000002
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x00001c      
+                            0x002007    0x002007      
+            30 out of 2182 program addresses used, program memory utilization is 1%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+             _.org_1_001C   0x00001c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   inicio   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                      isr   0x000005    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   isrsai   0x00000a    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                sentinela   0x000003    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                sentinela   0x000003    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                      isr   0x000005    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   isrsai   0x00000a    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   inicio   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_001C   0x00001c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+
+
