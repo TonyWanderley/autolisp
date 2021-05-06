@@ -1,12 +1,14 @@
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  1
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00001 ;       Central de alarme simplificada - arquivo operário               data - 03-05-2021 10:44
-                      00002         list            p=16f628
-                      00003         #include        <p16f628.inc>
+                      00001 ;       Central de alarme simplificada - arquivo operário       data    -       03-05-2021 10:44
+                      00002 ;                                                                                                       
+                                    versão  -       05-05-2021 17:24
+                      00003         list            p=16f628
+                      00004         #include        <p16f628.inc>
                       00001         LIST
                       00002 
                       00003 ;==========================================================================
@@ -16,36 +18,395 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00007 ;==========================================================================
                       00008 
                       00381         LIST
-                      00004         #include        "alarme.inc"
-                      00001 ;       Central de alarme simplificada - arquivo gestor         data - 03-05-2021 10:46
-                      00002 
-                      00003 ;       Macros:
-                      00004 #define         bank0           bcf     STATUS,RP0
-                      00005 #define         bank1           bsf             STATUS,RP0
-                      00006 
-                      00007 ;       Pinos:
-  00000006            00008 bot                     EQU                     PORTB
-  00000000            00009 botd            EQU                     h'0'
-  00000001            00010 bota            EQU                     h'1'
-  00000002            00011 botb            EQU                     h'2'
-  00000003            00012 botc            EQU                     h'3'
-  00000004            00013 botq            EQU                     h'4'
-  00000005            00014 botr            EQU                     h'5'
-  00000006            00015 bots            EQU                     h'6'
-  00000007            00016 botp            EQU                     h'7'
-                      00017 
-                      00018 
-  00000000            00019 ledg            EQU                     h'0'
-  00000001            00020 ledr            EQU                     h'1'
-  00000002            00021 sens            EQU                     h'2'
-  00000003            00022 sire            EQU                     h'3'
-2007   3F10           00005         __CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _FOSC_INTOSCIO & _MCLRE_OFF & _LVP_OFF
-                      00006 prog    code
-0000                  00007 sentinela:
-  0000                00008         global  sentinela
-0000   0008           00009         return
-3F10                  00010         end
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  2
+                      00005         #include        "alarme.inc"
+                      00001 ;       Central de alarme simplificada - arquivo gestor         data    -       03-05-2021 10:46
+                      00002 ;                                                                                                       
+                                    Versão  -       05-05-2021 17:09
+                      00003 
+                      00004 ;--Macros--
+                      00005 #define         bank0           bcf     STATUS,RP0
+                      00006 #define         bank1           bsf             STATUS,RP0
+                      00007 ;--fim de "Macros"--
+                      00008 
+                      00009 ;--Hardwere--
+                      00010 ;       --Teclado--
+  00000006            00011 teclado         EQU             PORTB
+  00000000            00012 coluna3         EQU             0
+  00000001            00013 coluna0         EQU             1
+  00000002            00014 coluna1         EQU             2
+  00000003            00015 coluna2         EQU             3
+  00000004            00016 linh1           EQU             4
+  00000005            00017 linh2           EQU             5
+  00000006            00018 linh3           EQU             6
+  00000007            00019 linh0           EQU             7
+                      00020 
+                      00021 ;       --Sensor, sirene e led's--
+  00000000            00022 verde           EQU             0
+  00000001            00023 vermelho        EQU             1
+  00000002            00024 sensor          EQU             2
+  00000003            00025 sirene          EQU             3
+                      00026 
+                      00027 ;--Variáveis--
+                      00028 ;       --Espelho de hardwere--
+  00000021            00029 espelho         EQU             h'21'
+  00000000            00030 ealarme         EQU             0               ;       virtual                                         
+                            ..      prg             ->      máquina
+  00000001            00031 esensor         EQU             1               ;       físico, entrada                         ..      
+                            máquina ->      prg
+  00000002            00032 esirene         EQU             2               ;       físico, saida                           ..      
+                            prg             ->      máquina
+  00000003            00033 eatualiza       EQU             3
+  00000004            00034 eled            EQU             4
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00035 
+                      00036 ;       --Controlador de fluxo--
+  00000022            00037 fluxo           EQU             h'22'
+  00000000            00038 digitou         EQU             0
+  00000001            00039 acesso          EQU             1
+  00000002            00040 mudasnh         EQU             2
+  00000003            00041 contando        EQU             3
+  00000004            00042 expirado        EQU             4
+  00000005            00043 pisca           EQU             5
+                      00044 
+                      00045 ;       --Salvamento de contexto--
+  00000023            00046 wtmp            EQU             h'23'
+  00000024            00047 stmp            EQU             h'24'
+                      00048 
+                      00049 ;       --Valores da coluna--
+  00000025            00050 vlinha1         EQU             h'25'
+  00000026            00051 vlinha2         EQU             h'26'
+  00000027            00052 vlinha3         EQU             h'27'
+  00000028            00053 vlinha4         EQU             h'28'
+                      00054 
+                      00055 ;       --Temporizador--
+  00000029            00056 tmplow          EQU             h'29'
+  0000002A            00057 tmpmid          EQU             h'2A'
+  0000002B            00058 tmphig          EQU             h'2B'
+                      00059 
+                      00060 ;       --Senha--
+  0000002C            00061 senha0          EQU             h'2C'
+  0000002D            00062 senha1          EQU             h'2D'
+  0000002E            00063 senha2          EQU             h'2E'
+  0000002F            00064 senha3          EQU             h'2F'
+                      00065 
+                      00066 ;       --Pilha--
+  00000067            00067 topo            EQU             h'67'
+2007   3F10           00006         __CONFIG _CP_OFF & _WDT_OFF & _BODEN_OFF & _PWRTE_ON & _FOSC_INTOSCIO & _MCLRE_OFF & _LVP_OFF
+                      00007 prog    code
+0000                  00008 entradig:
+  0000                00009         global  entradig
+0000   0186           00010         clrf    teclado                         ;       zere teclado, carregue coluna 0 e verifique linh
+                            a !!
+0001   3031           00011         movlw   '1'
+0002   00A5           00012         movwf   vlinha1
+0003   3034           00013         movlw   '4'
+0004   00A6           00014         movwf   vlinha2
+0005   3037           00015         movlw   '7'
+0006   00A7           00016         movwf   vlinha3
+0007   302A           00017         movlw   '*'
+0008   00A8           00018         movwf   vlinha4
+0009   1486           00019         bsf             teclado,coluna0
+000A   2???           00020         call    teclai
+000B   1086           00021         bcf             teclado,coluna0                 ;       descarregue coluna 0 !!
+000C   1822           00022         btfsc   fluxo,digitou   ;       tecla pressionada na coluna 0?
+000D   2???           00023         goto    pilha                   ;       sim ... guarde valor e retorne !!
+000E   3032           00024         movlw   '2'                             ;       --      repete para todas as coluna, com parâmet
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                            ros adequados   --
+000F   00A5           00025         movwf   vlinha1
+0010   3035           00026         movlw   '5'
+0011   00A6           00027         movwf   vlinha2
+0012   3038           00028         movlw   '8'
+0013   00A7           00029         movwf   vlinha3
+0014   3030           00030         movlw   '0'
+0015   00A8           00031         movwf   vlinha4
+0016   1506           00032         bsf             teclado,coluna1
+0017   2???           00033         call    teclai
+0018   1106           00034         bcf             teclado,coluna1
+0019   1822           00035         btfsc   fluxo,digitou
+001A   2???           00036         goto    pilha
+001B   3033           00037         movlw   '3'
+001C   00A5           00038         movwf   vlinha1
+001D   3036           00039         movlw   '6'
+001E   00A6           00040         movwf   vlinha2
+001F   3039           00041         movlw   '9'
+0020   00A7           00042         movwf   vlinha3
+0021   3023           00043         movlw   '#'
+0022   00A8           00044         movwf   vlinha4
+0023   1586           00045         bsf             teclado,coluna2
+0024   2???           00046         call    teclai
+0025   1186           00047         bcf             teclado,coluna2
+0026   1822           00048         btfsc   fluxo,digitou
+0027   2???           00049         goto    pilha
+0028   3041           00050         movlw   'A'                             ;       carregue coluna 3 e verifique linha !!
+0029   00A5           00051         movwf   vlinha1
+002A   3042           00052         movlw   'B'
+002B   00A6           00053         movwf   vlinha2
+002C   3043           00054         movlw   'C'
+002D   00A7           00055         movwf   vlinha3
+002E   3044           00056         movlw   'D'
+002F   00A8           00057         movwf   vlinha4
+0030   1406           00058         bsf             teclado,coluna3
+0031   2???           00059         call    teclai
+0032   1006           00060         bcf             teclado,coluna3                 ;       descarregue coluna 3 !!
+0033   1C22           00061         btfss   fluxo,digitou   ;       tecla pressionada na coluna 3?
+0034   0008           00062         return                                  ;       não ... retorne !!
+0035                  00063 pilha:                                          ;       sim ... guarde valor e retorne !!
+0035   2???           00064         call    push
+0036   0008           00065         return
+0037                  00066 teclai
+0037   1F86           00067         btfss   teclado,linh0                   ;       pressionou na linha 0?
+0038   2???           00068         goto    $ + 5                   ;       não ... tente 1 !!
+0039   1B86           00069         btfsc   teclado,linh0                   ;       sim ... soltou linha 0?
+003A   2???           00070         goto    $ - 1                   ;       não ... aguarde soltar !!
+003B   0825           00071         movf    vlinha1,W               ;       sim ... carregue o valor, sinalize êxito e retorne !!
+003C   2???           00072         goto    saiteclai
+003D   1E06           00073         btfss   teclado,linh1                   ;       ---     repete com outros parâmetros    ---
+003E   2???           00074         goto    $ + 5
+003F   1A06           00075         btfsc   teclado,linh1
+0040   2???           00076         goto    $ - 1
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0041   0826           00077         movf    vlinha2,W
+0042   2???           00078         goto    saiteclai
+0043   1E86           00079         btfss   teclado,linh2
+0044   2???           00080         goto    $ + 5
+0045   1A86           00081         btfsc   teclado,linh2
+0046   2???           00082         goto    $ - 1
+0047   0827           00083         movf    vlinha3,W
+0048   2???           00084         goto    saiteclai
+0049   1F06           00085         btfss   teclado,linh3                   ;       pressionou na linha 3?
+004A   0008           00086         return                                  ;       não ... retorne !!
+004B   1B06           00087         btfsc   teclado,linh3                   ;       sim ... soltou linha 3?
+004C   2???           00088         goto    $ - 1                   ;       não ... aguarde soltar !!
+004D   0828           00089         movf    vlinha4,W               ;       sim ... carregue o valor, sinalize êxito e retorne !!
+004E                  00090 saiteclai:
+004E   1422           00091         bsf             fluxo,digitou
+004F   0008           00092         return
+0050                  00093 processa:
+  0000                00094         global  processa
+0050   2???           00095         call    top                             ;       recupere o último dígito !!
+0051   302A           00096         movlw   '*'
+0052   0267           00097         subwf   topo,W
+0053   1D03           00098         btfss   STATUS,Z                ;       topo = '*'?
+0054   2???           00099         goto    $ + 5                   ;       não ... verifiqe '#' !!
+0055   2???           00100         call    verisenha               ;       sim ... verifique o acesso !!
+0056   18A2           00101         btfsc   fluxo,acesso    ;       acesso permitido?
+0057   1522           00102         bsf             fluxo,mudasnh   ;       sim ... habilite edição de senha !!
+0058   0008           00103         return                                  ;       não ... retorne !!
+0059   2???           00104         call    top                             ;       recupere o último dígito !!
+005A   3023           00105         movlw   '#'
+005B   0267           00106         subwf   topo,W
+005C   1D03           00107         btfss   STATUS,Z                ;       topo = '#'?
+005D   0008           00108         return                                  ;       não ... retorne !!
+005E   1D22           00109         btfss   fluxo,mudasnh   ;       edição de senha habilitada?
+005F   2???           00110         goto    $ + d'12'               ;       não ... opere arme e desarme do alarme !!
+0060   086B           00111         movf    h'6B',W                 ;       sim ... altere senha e retorne !!
+0061   00AC           00112         movwf   senha0
+0062   086C           00113         movf    h'6C',W
+0063   00AD           00114         movwf   senha1
+0064   086D           00115         movf    h'6D',W
+0065   00AE           00116         movwf   senha2
+0066   086E           00117         movf    h'6E',W
+0067   00AF           00118         movwf   senha3
+0068   10A2           00119         bcf             fluxo,acesso
+0069   1122           00120         bcf             fluxo,mudasnh
+006A   0008           00121         return
+006B   2???           00122         call    verisenha
+006C   1CA2           00123         btfss   fluxo,acesso    ;       acesso permitido?
+006D   0008           00124         return                                  ;       não ... retorne !!
+006E   1C21           00125         btfss   espelho,ealarme ;       armado?
+006F   2???           00126         goto    $ + 5                   ;       não ... arme o alarme, restrinja o acesso e retorne !!
+0070   1021           00127         bcf             espelho,ealarme                 ;       sim ... desarme o alarme, restrinja o ac
+                            esso e retorne !!
+0071   10A2           00128         bcf             fluxo,acesso
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0072   15A1           00129         bsf             espelho,eatualiza
+0073   0008           00130         return
+0074   1421           00131         bsf             espelho,ealarme
+0075   15A1           00132         bsf             espelho,eatualiza
+0076   0008           00133         return
+0077                  00134 verisenha:
+0077   10A2           00135         bcf             fluxo,acesso
+0078   086B           00136         movf    h'6B',W
+0079   022C           00137         subwf   senha0,W
+007A   1D03           00138         btfss   STATUS,Z
+007B   0008           00139         return
+007C   086C           00140         movf    h'6C',W
+007D   022D           00141         subwf   senha1,W
+007E   1D03           00142         btfss   STATUS,Z
+007F   0008           00143         return
+0080   086D           00144         movf    h'6D',W
+0081   022E           00145         subwf   senha2,W
+0082   1D03           00146         btfss   STATUS,Z
+0083   0008           00147         return
+0084   086E           00148         movf    h'6E',W
+0085   022F           00149         subwf   senha3,W
+0086   1D03           00150         btfss   STATUS,Z
+0087   0008           00151         return
+0088   14A2           00152         bsf             fluxo,acesso
+0089   0008           00153         return
+008A                  00154 espelhar:
+  0000                00155         global  espelhar
+                      00156 ;               espelho:                ealarme,        esensor,        esirene,        eatualiza,      
+                            eled
+                      00157 ;               PORTA:                  verde,          vermelho,       sensor,         sirene
+                      00158 ;               fluxo:                  digitou,        acesso,         mudasnh,        contando,       
+                            expirado,       pisca
+008A   1D05           00159         btfss   PORTA,sensor            ;       sensor fechado?
+008B   2???           00160         goto    $ + 6                           ;       não
+008C   1CA1           00161         btfss   espelho,esensor         ;       sim .. esensor fechado?
+008D   15A1           00162         bsf             espelho,eatualiza       ;       não
+008E   14A1           00163         bsf             espelho,esensor         ;       sim
+008F   1221           00164         bcf             espelho,eled            ;       ativo led verde
+0090   2???           00165         goto    $ + 5
+0091   18A1           00166         btfsc   espelho,esensor         ;       esensor aberto?
+0092   15A1           00167         bsf             espelho,eatualiza       ;       não
+0093   10A1           00168         bcf             espelho,esensor
+0094   1621           00169         bsf             espelho,eled            ;       ativo led vermelho
+0095   1AA2           00170         btfsc   fluxo,pisca                     ;       pisca = 0?
+0096   2???           00171         goto    $ + d'11'                       ;       não
+0097   1DA2           00172         btfss   fluxo,contando          ;       sim .. contando?
+0098   2???           00173         goto    $ + 4                           ;       não
+0099   16A2           00174         bsf             fluxo,pisca                     ;       sim
+009A   15A1           00175         bsf             espelho,eatualiza
+009B   2???           00176         goto    $ + d'12'
+009C   1D21           00177         btfss   espelho,esirene         ;       esirene?
+009D   2???           00178         goto    $ + d'10'                       ;       não
+009E   16A2           00179         bsf             fluxo,pisca                     ;       sim
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+009F   15A1           00180         bsf             espelho,eatualiza
+00A0   2???           00181         goto    $ + 7
+00A1   19A2           00182         btfsc   fluxo,contando
+00A2   2???           00183         goto    $ + 5
+00A3   1921           00184         btfsc   espelho,esirene
+00A4   2???           00185         goto    $ + 3
+00A5   12A2           00186         bcf             fluxo,pisca
+00A6   15A1           00187         bsf             espelho,eatualiza
+00A7   1D21           00188         btfss   espelho,esirene
+00A8   2???           00189         goto    $ + 5
+00A9   1D85           00190         btfss   PORTA,sirene
+00AA   15A1           00191         bsf             espelho,eatualiza
+00AB   1585           00192         bsf             PORTA,sirene
+00AC   2???           00193         goto    $ + 4
+00AD   1985           00194         btfsc   PORTA,sirene
+00AE   15A1           00195         bsf             espelho,eatualiza
+00AF   1185           00196         bcf             PORTA,sirene
+00B0   1C21           00197         btfss   espelho,ealarme         ;       alarme ativado?
+00B1   2???           00198         goto    trataled                        ;       não     [0, 2]
+00B2   18A1           00199         btfsc   espelho,esensor         ;       sim     [1, 3, 4, 5]    sensor aberto?
+00B3   2???           00200         goto    trataled                        ;       não     [3, 5]
+00B4   1921           00201         btfsc   espelho,esirene         ;       sim     [1, 4]  sirene desligada?
+00B5   2???           00202         goto    trataled                        ;       não     [4]
+00B6   19A2           00203         btfsc   fluxo,contando          ;       sim     [1]     temporizador desligado?
+00B7   2???           00204         goto    $ + 7                           ;       não     [1]
+00B8   15A2           00205         bsf             fluxo,contando          ;       sim     [1]
+00B9   1222           00206         bcf             fluxo,expirado
+00BA   16A2           00207         bsf             fluxo,pisca
+00BB   01A9           00208         clrf    tmplow
+00BC   01AA           00209         clrf    tmpmid
+00BD   01AB           00210         clrf    tmphig
+00BE   1E22           00211         btfss   fluxo,expirado
+00BF   2???           00212         goto    trataled                        ;não    [1]
+00C0   1521           00213         bsf             espelho,esirene
+00C1   11A2           00214         bcf             fluxo,contando          ;       [1]     ->      [4]
+00C2                  00215 trataled:
+00C2   1E21           00216         btfss   espelho,eled
+00C3   2???           00217         goto    $ + d'11'
+00C4   1405           00218         bsf             PORTA,verde
+00C5   1AA2           00219         btfsc   fluxo,pisca
+00C6   2???           00220         goto    $ + 3
+00C7   1085           00221         bcf             PORTA,vermelho
+00C8   0008           00222         return
+00C9   1CA9           00223         btfss   tmplow,1
+00CA   0008           00224         return
+00CB   3002           00225         movlw   h'02'
+00CC   0685           00226         xorwf   PORTA,F
+00CD   0008           00227         return
+00CE   1485           00228         bsf             PORTA,vermelho
+00CF   1AA2           00229         btfsc   fluxo,pisca
+00D0   2???           00230         goto    $ + 3
+00D1   1005           00231         bcf             PORTA,verde
+00D2   0008           00232         return
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00D3   1CA9           00233         btfss   tmplow,1
+00D4   0008           00234         return
+00D5   3001           00235         movlw   h'01'
+00D6   0685           00236         xorwf   PORTA,F
+00D7   0008           00237         return
+00D8                  00238 push:
+00D8   00E7           00239         movwf   topo
+00D9   0869           00240         movf    h'69',W
+00DA   00E8           00241         movwf   h'68'
+00DB   086A           00242         movf    h'6A',W
+00DC   00E9           00243         movwf   h'69'
+00DD   086B           00244         movf    h'6B',W
+00DE   00EA           00245         movwf   h'6A'
+00DF   086C           00246         movf    h'6C',W
+00E0   00EB           00247         movwf   h'6B'
+00E1   086D           00248         movf    h'6D',W
+00E2   00EC           00249         movwf   h'6C'
+00E3   086E           00250         movf    h'6E',W
+00E4   00ED           00251         movwf   h'6D'
+00E5   086F           00252         movf    h'6F',W
+00E6   00EE           00253         movwf   h'6E'
+00E7   0867           00254         movf    topo,W
+00E8   00EF           00255         movwf   h'6F'
+00E9   0008           00256         return
+00EA                  00257 pop:
+00EA   086F           00258         movf    h'6F',W
+00EB   00E7           00259         movwf   topo
+00EC   086E           00260         movf    h'6E',W
+00ED   00EF           00261         movwf   h'6F'
+00EE   086D           00262         movf    h'6D',W
+00EF   00EE           00263         movwf   h'6E'
+00F0   086C           00264         movf    h'6C',W
+00F1   00ED           00265         movwf   h'6D'
+00F2   086B           00266         movf    h'6B',W
+00F3   00EC           00267         movwf   h'6C'
+00F4   086A           00268         movf    h'6A',W
+00F5   00EB           00269         movwf   h'6B'
+00F6   0869           00270         movf    h'69',W
+00F7   00EA           00271         movwf   h'6A'
+00F8   0868           00272         movf    h'68',W
+00F9   00E9           00273         movwf   h'69'
+00FA   0867           00274         movf    topo,W
+00FB   0008           00275         return
+00FC                  00276 top:
+00FC   086F           00277         movf    h'6F',W
+00FD   00E7           00278         movwf   topo
+00FE   0008           00279         return
+3F10                  00280         end
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  8
 
 
 SYMBOL TABLE
@@ -104,7 +465,7 @@ NOT_BOD                           00000000
 NOT_BOR                           00000000
 NOT_PD                            00000003
 NOT_POR                           00000001
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  3
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE  9
 
 
 SYMBOL TABLE
@@ -163,7 +524,7 @@ STATUS                            00000003
 SYNC                              00000004
 T0CS                              00000005
 T0IE                              00000005
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  4
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE 10
 
 
 SYMBOL TABLE
@@ -222,7 +583,7 @@ TXIE                              00000004
 TXIF                              00000004
 TXREG                             00000019
 TXSTA                             00000098
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  5
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE 11
 
 
 SYMBOL TABLE
@@ -281,7 +642,7 @@ _PWRTE_ON                         00003FF7
 _WDTE_OFF                         00003FFB
 _WDTE_ON                          00003FFF
 _WDT_OFF                          00003FFB
-MPASM  5.51                       ALARMEO.ASM   5-3-2021  11:48:37         PAGE  6
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE 12
 
 
 SYMBOL TABLE
@@ -291,22 +652,90 @@ _WDT_ON                           00003FFF
 _XT_OSC                           00003FED
 __16F628                          00000001
 __DEBUG                           1
+_prog_0038                        00000038
+_prog_003A                        0000003A
+_prog_003E                        0000003E
+_prog_0040                        00000040
+_prog_0044                        00000044
+_prog_0046                        00000046
+_prog_004C                        0000004C
+_prog_0054                        00000054
+_prog_005F                        0000005F
+_prog_006F                        0000006F
+_prog_008B                        0000008B
+_prog_0090                        00000090
+_prog_0096                        00000096
+_prog_0098                        00000098
+_prog_009B                        0000009B
+_prog_009D                        0000009D
+_prog_00A0                        000000A0
+_prog_00A2                        000000A2
+_prog_00A4                        000000A4
+_prog_00A8                        000000A8
+_prog_00AC                        000000AC
+_prog_00B7                        000000B7
+_prog_00C3                        000000C3
+_prog_00C6                        000000C6
+_prog_00D0                        000000D0
+acesso                            00000001
 bank0                             bcf     STATUS,RP0
 bank1                             bsf             STATUS,RP0
-bot                               00000006
-bota                              00000001
-botb                              00000002
-botc                              00000003
-botd                              00000000
-botp                              00000007
-botq                              00000004
-botr                              00000005
-bots                              00000006
-ledg                              00000000
-ledr                              00000001
-sens                              00000002
-sentinela                         00000000
-sire                              00000003
+coluna0                           00000001
+coluna1                           00000002
+coluna2                           00000003
+coluna3                           00000000
+contando                          00000003
+digitou                           00000000
+ealarme                           00000000
+eatualiza                         00000003
+eled                              00000004
+entradig                          00000000
+esensor                           00000001
+esirene                           00000002
+espelhar                          0000008A
+espelho                           00000021
+expirado                          00000004
+fluxo                             00000022
+linh0                             00000007
+linh1                             00000004
+linh2                             00000005
+linh3                             00000006
+mudasnh                           00000002
+MPASM  5.51                       ALARMEO.ASM   5-6-2021  19:31:56         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+pilha                             00000035
+pisca                             00000005
+pop                               000000EA
+processa                          00000050
+push                              000000D8
+saiteclai                         0000004E
+senha0                            0000002C
+senha1                            0000002D
+senha2                            0000002E
+senha3                            0000002F
+sensor                            00000002
+sirene                            00000003
+stmp                              00000024
+teclado                           00000006
+teclai                            00000037
+tmphig                            0000002B
+tmplow                            00000029
+tmpmid                            0000002A
+top                               000000FC
+topo                              00000067
+trataled                          000000C2
+verde                             00000000
+verisenha                         00000077
+vermelho                          00000001
+vlinha1                           00000025
+vlinha2                           00000026
+vlinha3                           00000027
+vlinha4                           00000028
+wtmp                              00000023
 
 Errors   :     0
 Warnings :     0 reported,     0 suppressed

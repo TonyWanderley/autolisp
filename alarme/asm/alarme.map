@@ -1,13 +1,13 @@
 MPLINK 4.49, Linker
-Linker Map File - Created Mon May 03 12:16:46 2021
+Linker Map File - Created Thu May 06 19:31:57 2021
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000002
                    .cinit    romdata   0x000001    program   0x000004
-                     prog       code   0x000003    program   0x000002
-                   .org_1       code   0x000004    program   0x000032
+                   .org_1       code   0x000004    program   0x00007e
+                     prog       code   0x000043    program   0x0001fe
    .config_2007_ALARMEO.O       code   0x002007    program   0x000002
 
 
@@ -15,30 +15,113 @@ Linker Map File - Created Mon May 03 12:16:46 2021
                               Program Memory Usage 
                                Start         End      
                            ---------   ---------      
-                            0x000000    0x00001c      
+                            0x000000    0x000002      
+                            0x000004    0x000141      
                             0x002007    0x002007      
-            30 out of 2182 program addresses used, program memory utilization is 1%
+            322 out of 2182 program addresses used, program memory utilization is 14%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-             _.org_1_001C   0x00001c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-                   inicio   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_000D   0x00000d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_000F   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_0012   0x000012    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_0014   0x000014    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_002C   0x00002c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_002F   0x00002f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+               _prog_0038   0x00007b    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_003A   0x00007d    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_003E   0x000081    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0040   0x000083    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0044   0x000087    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0046   0x000089    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_004C   0x00008f    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0054   0x000097    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_005F   0x0000a2    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_006F   0x0000b2    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_008B   0x0000ce    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0090   0x0000d3    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0096   0x0000d9    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0098   0x0000db    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_009B   0x0000de    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_009D   0x0000e0    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A0   0x0000e3    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A2   0x0000e5    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A4   0x0000e7    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A8   0x0000eb    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00AC   0x0000ef    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00B7   0x0000fa    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00C3   0x000106    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00C6   0x000109    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00D0   0x000113    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 entradig   0x000043    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                 espelhar   0x0000cd    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                   inicio   0x00001d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
                       isr   0x000005    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-                   isrsai   0x00000a    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-                sentinela   0x000003    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                   isrsai   0x000018    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                    pilha   0x000078    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                      pop   0x00012d    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 processa   0x000093    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                     push   0x00011b    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                saiteclai   0x000091    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                sentinela   0x00003d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   teclai   0x00007a    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                      top   0x00013f    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 trataled   0x000105    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                verisenha   0x0000ba    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
 
 
 
                               Symbols - Sorted by Address
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                sentinela   0x000003    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
                       isr   0x000005    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-                   isrsai   0x00000a    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-                   inicio   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
-             _.org_1_001C   0x00001c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_000D   0x00000d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_000F   0x00000f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_0012   0x000012    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_0014   0x000014    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   isrsai   0x000018    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                   inicio   0x00001d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_002C   0x00002c    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+             _.org_1_002F   0x00002f    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                sentinela   0x00003d    program     static C:\2021\projeto\alarme\asm\alarmeg.asm
+                 entradig   0x000043    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+                    pilha   0x000078    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                   teclai   0x00007a    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0038   0x00007b    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_003A   0x00007d    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_003E   0x000081    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0040   0x000083    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0044   0x000087    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0046   0x000089    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_004C   0x00008f    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                saiteclai   0x000091    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 processa   0x000093    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0054   0x000097    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_005F   0x0000a2    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_006F   0x0000b2    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                verisenha   0x0000ba    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 espelhar   0x0000cd    program     extern C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_008B   0x0000ce    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0090   0x0000d3    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0096   0x0000d9    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_0098   0x0000db    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_009B   0x0000de    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_009D   0x0000e0    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A0   0x0000e3    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A2   0x0000e5    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A4   0x0000e7    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00A8   0x0000eb    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00AC   0x0000ef    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00B7   0x0000fa    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                 trataled   0x000105    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00C3   0x000106    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00C6   0x000109    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+               _prog_00D0   0x000113    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                     push   0x00011b    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                      pop   0x00012d    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
+                      top   0x00013f    program     static C:\2021\projeto\alarme\asm\alarmeo.asm
 
 

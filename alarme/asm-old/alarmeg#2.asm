@@ -1,6 +1,5 @@
 ;	Central de alarme simplificada - arquivo gestor		data	-	03-05-2021 10:42
 ;														versão	-	05-05-2021 17:19
-;														versão	-	06-05-2021 15:20
 ;--Notas--
 ;	TIMER0:
 ;	[ps2 .. ps0] = 111 -> escala (E) 1 / 256
@@ -16,12 +15,16 @@
 	list		p=16f628
 	#include	<p16f628.inc>
 	#include	"alarme.inc"
+;--fim de "Cabeçalho"--
+
+;--Definições e links--
 startup code
-	extern entradig, processa, espelhar
+	extern entradig, processa
 	org		h'000'
 	goto	inicio
 	org		h'004'
 	goto	isr
+;--fim de "Definições e links"--
 
 ;--Interrupções--
 isr:
@@ -30,16 +33,22 @@ isr:
 	swapf STATUS,W
 	bank0
 	movwf stmp
+;	--fim de "Salvamento de contexto"--
 
 ;	--Tratamento--
 	btfss	INTCON,T0IF
 	goto	isrsai
 	bcf		INTCON,T0IF
+
+;		--incremento da variável de 24 bits--
 	incfsz	tmplow,F
 	goto	$ + 4
 	incfsz	tmpmid,F
 	goto	$ + 2
 	incf	tmphig,F
+;		--fim de "incremento da variável de 24 bits"--
+
+;		--Gestar tempos--
 	btfss	fluxo,contando
 	goto	$ + 6
 	btfss	tmpmid,2
@@ -47,6 +56,9 @@ isr:
 	bsf		fluxo,expirado
 	bcf		fluxo,pisca
 	bcf		fluxo,contando
+;		--fim de "Gestar tempos"--
+
+;	--fim de "Tratamento"--
 
 ;	--Recuperação de contexto e retorno--
 isrsai:
@@ -55,6 +67,8 @@ isrsai:
 	swapf wtmp,F
 	swapf wtmp,W 
 	retfie
+;	--fim de "Recuperação de contexto e retorno"--
+;--fim de "Interrupções"--
 
 ;--Rotina gerente--
 inicio:
@@ -71,6 +85,7 @@ inicio:
 	movlw	h'F0'
 	movwf	TRISB
 	bank0
+;	--fim de "Fuses"--
 
 ;	--Valores iniciais--
 	clrf	espelho
@@ -93,13 +108,64 @@ inicio:
 	clrf	tmplow
 	clrf	tmpmid
 	clrf	tmphig
+;	--fim de "Valores iniciais"--
 
 ;	--Loop--
 sentinela:
-	call	espelhar
+	btfsc	PORTA,sensor		;	sensor aberto?
+	goto	$ + 4				;	sensor fechado !!
+	btfsc	espelho,esensor		;	sensor aberto	..	esensor aberto?
+	bsf		espelho,eatualiza	;	esensor fechado, sensor aberto -> muda !!
+	goto	$ + 3				;	esensor aberto, sensor aberto -> ok !!
+	btfss	espelho,esensor		;	sensor fechado .. esensor fechado?
+	bsf		espelho,eatualiza	;	esensor aberto, sensor fechado -> muda !!
+	btfss	espelho,eatualiza	;	mudar?
+	goto	entrada
+	bcf		espelho,esensor
+	btfss	PORTA,sensor
+	goto	$ + d'11'
+	bsf		espelho,esensor
+	btfss	fluxo,pisca
+	goto	$ + 5
+	movlw	h'01'
+	btfsc	tmplow,1
+	xorwf	PORTA,F
+	goto	$ + 2
+	bcf		PORTA,verde
+	bsf		PORTA,vermelho
+	goto	$ + 9
+	bsf		PORTA,verde
+	btfss	fluxo,pisca
+	goto	$ + 5
+	movlw	h'02'
+	btfsc	tmplow,1
+	xorwf	PORTA,F
+	goto	$ + 2
+	bcf		PORTA,vermelho		;	--leds e sensor atualizados--
+	btfss	espelho,esirene
+	goto	$ + 3
+	bsf		PORTA,sirene
+	goto	$ + 2
+	bcf		PORTA,sirene		;	--leds, sensor e sirene atualizados--
+	btfss	espelho,ealarme
+	goto	$ + d'11'
+	btfsc	fluxo,contando
+	goto	$ + 7
+	bsf		fluxo,contando
+	bcf		fluxo,expirado
+	bsf		fluxo,pisca
+	clrf	tmplow
+	clrf	tmpmid
+	clrf	tmphig
+	btfsc	fluxo,expirado
+	bsf		espelho,esirene
+	bcf		espelho,eatualiza
+entrada:
 	bcf		fluxo,digitou
 	call	entradig
 	btfsc	fluxo,digitou
 	call	processa
 	goto	sentinela
+;	--fim de "Loop"--
+;--fim de "Rotina gerente"--
 	end
