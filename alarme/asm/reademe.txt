@@ -1,0 +1,20 @@
+valor da sirene:
+	sir = f(A,B,C,D)
+	sendo:
+	A = valor anterior da sirene;
+	B = estado do alarme;
+	C = sensor;
+	D = tempo.
+	sir = ABCD + ABC + ABD + AB + BD <=> sir = AB + BD <=> sir = B (A + D)
+
+valor do relógio:
+	r = f(A,B,C,D)
+	sendo:
+	A = valor anterior da sirene;
+	B = estado do alarme;
+	C = sensor;
+	D = tempo.
+	r = B * ~(ACD)
+
+* pisca acompanha o relógio
+** led vermelho acompanha o sensor e o verde é o inverso

@@ -1,7 +1,6 @@
 ;	Central de alarme simplificada - arquivo gestor		data	-	03-05-2021 10:42
 ;														versão	-	05-05-2021 17:19
 ;														versão	-	06-05-2021 15:20
-;														versão	-	07-05-2021 11:22
 ;--Notas--
 ;	TIMER0:
 ;	[ps2 .. ps0] = 111 -> escala (E) 1 / 256
@@ -18,7 +17,7 @@
 	#include	<p16f628.inc>
 	#include	"alarme.inc"
 startup code
-	extern entradig, processa, atualiza
+	extern entradig, processa, espelhar
 	org		h'000'
 	goto	inicio
 	org		h'004'
@@ -41,6 +40,14 @@ isr:
 	incfsz	tmpmid,F
 	goto	$ + 2
 	incf	tmphig,F
+	btfss	fluxo,contando
+	goto	$ + 6
+	btfss	tmpmid,2
+	goto	$ + 5
+	bsf		fluxo,expirado
+	bcf		fluxo,pisca
+	bcf		fluxo,contando
+	bsf		espelho,esirene
 
 ;	--Recuperação de contexto e retorno--
 isrsai:
@@ -67,6 +74,7 @@ inicio:
 	bank0
 
 ;	--Valores iniciais--
+	clrf	espelho
 	bcf		PORTA,sirene
 	btfsc	PORTA,sensor
 	goto	$ + 4
@@ -83,11 +91,13 @@ inicio:
 	movwf	senha2
 	movlw	'4'
 	movwf	senha3
-	clrf	estado
+	clrf	tmplow
+	clrf	tmpmid
+	clrf	tmphig
 
 ;	--Loop--
 sentinela:
-	call	atualiza
+	call	espelhar
 	bcf		fluxo,digitou
 	call	entradig
 	btfsc	fluxo,digitou

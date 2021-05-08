@@ -26,18 +26,21 @@ sirene		EQU		3
 
 ;--Variáveis--
 ;	--Espelho de hardwere--
-estado		EQU		h'21'
-sira		EQU		0		;	sirene anterior
-alarme		EQU		1
-relogio		EQU		2
-tempo		EQU		3
-sir			EQU		4
+espelho		EQU		h'21'
+ealarme		EQU		0		;	virtual						..	prg		->	máquina
+esensor		EQU		1		;	físico, entrada				..	máquina	->	prg
+esirene		EQU		2		;	físico, saida				..	prg		->	máquina
+eatualiza	EQU		3
+eled		EQU		4
 
 ;	--Controlador de fluxo--
 fluxo		EQU		h'22'
 digitou		EQU		0
 acesso		EQU		1
 mudasnh		EQU		2
+contando	EQU		3
+expirado	EQU		4
+pisca		EQU		5
 
 ;	--Salvamento de contexto--
 wtmp		EQU		h'23'

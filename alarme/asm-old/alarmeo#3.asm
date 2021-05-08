@@ -122,8 +122,14 @@ processa:
 	call	verisenha
 	btfss	fluxo,acesso	;	acesso permitido?
 	return					;	não ... retorne !!
-	movlw	h'02'
-	xorwf	estado,F
+	btfss	espelho,ealarme	;	armado?
+	goto	$ + 5			;	não ... arme o alarme, restrinja o acesso e retorne !!
+	bcf		espelho,ealarme			;	sim ... desarme o alarme, restrinja o acesso e retorne !!
+	bcf		fluxo,acesso
+	bsf		espelho,eatualiza
+	return
+	bsf		espelho,ealarme
+	bsf		espelho,eatualiza
 	return
 verisenha:
 	bcf		fluxo,acesso
@@ -145,89 +151,89 @@ verisenha:
 	return
 	bsf		fluxo,acesso
 	return
-atualiza:
-	global	atualiza
-;		estado:		sira,	alarme,		relogio,	tempo,	sir
-;		PORTA:		verde,	vermelho,	sensor,		sirene
-;--ligar relogio:	B * ~(ACD)
-	btfsc	estado,relogio	;	relogio desligado?
-	goto	reloff			;	não .. relógio ligado!!
-	btfss	estado,alarme	;	sim .. alarme ligado?
-	goto	siroff			;	não .. ~B
-	btfsc	estado,sira		;	sim .. sira desativada?
-	goto	siron			;	não .. ~A
-	btfsc	PORTA,sensor	;	sim .. sensor aberto?
-	goto	siron			;	não .. ~C
-	btfsc	estado,tempo	;	tempo incompleto?
-	goto	siron			;	não .. ~D
-	bsf		estado,relogio	;	satisfeitas as condições, ligou o relógio
+espelhar:
+	global	espelhar
+;		espelho:		ealarme,	esensor,	esirene,	eatualiza,	eled
+;		PORTA:			verde,		vermelho,	sensor,		sirene
+;		fluxo:			digitou,	acesso,		mudasnh,	contando,	expirado,	pisca
+	btfss	PORTA,sensor		;	sensor fechado?
+	goto	$ + 6				;	não
+	btfss	espelho,esensor		;	sim .. esensor fechado?
+	bsf		espelho,eatualiza	;	não
+	bsf		espelho,esensor		;	sim
+	bcf		espelho,eled		;	ativo led verde
+	goto	$ + 5
+	btfsc	espelho,esensor		;	esensor aberto?
+	bsf		espelho,eatualiza	;	não
+	bcf		espelho,esensor
+	bsf		espelho,eled		;	ativo led vermelho
+	btfsc	fluxo,pisca			;	pisca = 0?
+	goto	$ + d'11'			;	não
+	btfss	fluxo,contando		;	sim .. contando?
+	goto	$ + 4				;	não
+	bsf		fluxo,pisca			;	sim
+	bsf		espelho,eatualiza
+	goto	$ + d'12'
+	btfss	espelho,esirene		;	esirene?
+	goto	$ + d'10'			;	não
+	bsf		fluxo,pisca			;	sim
+	bsf		espelho,eatualiza
+	goto	$ + 7
+	btfsc	fluxo,contando
+	goto	$ + 5
+	btfsc	espelho,esirene
+	goto	$ + 3
+	bcf		fluxo,pisca
+	bsf		espelho,eatualiza
+	btfss	espelho,esirene
+	goto	$ + 5
+	btfss	PORTA,sirene
+	bsf		espelho,eatualiza
+	bsf		PORTA,sirene
+	goto	$ + 4
+	btfsc	PORTA,sirene
+	bsf		espelho,eatualiza
+	bcf		PORTA,sirene
+	btfss	espelho,ealarme		;	alarme ativado?
+	goto	trataled			;	não	[0, 2]
+	btfsc	espelho,esensor		;	sim	[1, 3, 4, 5]	sensor aberto?
+	goto	trataled			;	não	[3, 5]
+	btfsc	espelho,esirene		;	sim	[1, 4]	sirene desligada?
+	goto	trataled			;	não	[4]
+	btfsc	fluxo,contando		;	sim	[1]	temporizador desligado?
+	goto	$ + 7				;	não	[1]
+	bsf		fluxo,contando		;	sim	[1]
+	bcf		fluxo,expirado
+	bsf		fluxo,pisca
 	clrf	tmplow
 	clrf	tmpmid
 	clrf	tmphig
-	goto	siron
-;--desligar relógio:	~B + A + C + D **nesta linha, o relógio está ligado**
-reloff
-	btfss	estado,alarme	;	alarme ligado?
-	bcf		estado,relogio	;	não .. ~B
-	btfsc	estado,sira		;	sim .. sira desativada?
-	bcf		estado,relogio	;	não .. ~~A = A
-	btfsc	PORTA,sensor	;	sim .. sensor aberto?
-	bcf		estado,relogio	;	não .. ~~C = C
-	btfsc	estado,tempo	;	sim .. tempo correndo?
-	bcf		estado,relogio	;	não .. ~~D = D
-siron:
-;--ligar sirene:	B * (A + D)
-	btfsc	estado,sir		;	sirene desligada?
-	goto	siroff			;	não
-	btfss	estado,alarme	;	sim .. alarme ligado?
-	goto	siroff			;	não .. ~B
-	btfsc	estado,sira		;	sim .. já que B, sira desativada?
-	bsf		estado,sir		;	não .. ~~A*B = A*B
-	btfsc	estado,tempo	;	sim .. tempo correndo?
-	bsf		estado,sir		;	não .. B * ~~D = B*D
-;--desligar sirene:	~B
-siroff:
-	btfss	estado,alarme
-	bcf		estado,sir
-;--depois de tratada a sirene atual, agora se trata a sirene anterior e a física .. sirene = sira = sir
-	btfss	estado,sir		;	sirene ligada?
-	goto	$ + 5			;	não ..
-	bsf		estado,sira		;	sim ..
-	bsf		PORTA,sirene
-	bcf		estado,tempo
-	goto	$ + 3
-	bcf		estado,sira
-	bcf		PORTA,sirene
-;--tratar o tempo:		T = B * ~C * D * M
-	btfss	estado,alarme	;	alarme ligado?
-	goto	$ + 7			;	não .. ~B
-	btfsc	PORTA,sensor	;	sim .. sensor aberto?
-	goto	$ + 5			;	não .. ~~C = C
-	btfss	estado,relogio	;	sim .. relogio ligado?
-	goto	$ + 3			;	não .. ~D
-	btfsc	tmpmid,2		;	sim .. ~M?
-	bsf		estado,tempo	;	não .. B * ~C * D * M
-;--tratar os leds:
-;--pisca: P = D * W
-	btfss	estado,relogio	;	relógio ativo?
-	goto	$ + d'11'		;	não .. ~D
-	btfss	PORTA,sensor	;	sim .. D .. C?
-	goto	$ + 6			;	não .. D * ~C
-	btfss	tmplow,1		;	sim .. CD .. W?
-	goto	$ + d'14'		;	não .. C*D*~W
-	movlw	h'01'			;	sim .. C * D * W
-	xorwf	PORTA,F
+	btfss	fluxo,expirado
+	goto	trataled			;não	[1]
+	bsf		espelho,esirene
+	bcf		fluxo,contando		;	[1]	->	[4]
+trataled:
+	btfss	espelho,eled
 	goto	$ + d'11'
-	movlw	h'02'			;	sim .. ~C * D * W
-	xorwf	PORTA,F
-	goto	$ + 8
-	btfss	PORTA,sensor
-	goto	$ + 4
-	bcf		PORTA,0
-	bsf		PORTA,1
+	bsf		PORTA,verde
+	btfsc	fluxo,pisca
 	goto	$ + 3
-	bsf		PORTA,0
-	bcf		PORTA,1
+	bcf		PORTA,vermelho
+	return
+	btfss	tmplow,1
+	return
+	movlw	h'02'
+	xorwf	PORTA,F
+	return
+	bsf		PORTA,vermelho
+	btfsc	fluxo,pisca
+	goto	$ + 3
+	bcf		PORTA,verde
+	return
+	btfss	tmplow,1
+	return
+	movlw	h'01'
+	xorwf	PORTA,F
 	return
 push:
 	movwf	topo
